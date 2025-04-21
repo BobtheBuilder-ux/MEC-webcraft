@@ -1,11 +1,10 @@
-
 import React from "react";
 import { Navbar } from "@/components/Navbar";
-import { Hero } from "@/components/Hero";
+import LandingHero from "@/components/LandingHero";
 import { Portfolio } from "@/components/Portfolio";
 import { Contact } from "@/components/Contact";
 import { navItems, projects, rotatingTitles, skills } from "@/lib/data";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Github, Linkedin, Twitter } from "lucide-react";
 import { motion } from "framer-motion";
 
 const Index = () => {
@@ -14,7 +13,7 @@ const Index = () => {
       <Navbar items={navItems} />
       
       <main>
-        <Hero rotatingTitles={rotatingTitles} />
+        <LandingHero />
         
         {/* About Section */}
         <section id="about" className="py-20">
@@ -88,6 +87,17 @@ const Index = () => {
                 {item.name}
               </a>
             ))}
+          </div>
+          <div className="flex justify-center mt-6 space-x-6">
+            <a href="https://github.com/yourusername" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#FFD700] transition-colors">
+              <Github className="w-6 h-6" />
+            </a>
+            <a href="https://linkedin.com/in/yourusername" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#FFD700] transition-colors">
+              <Linkedin className="w-6 h-6" />
+            </a>
+            <a href="https://twitter.com/yourusername" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-[#FFD700] transition-colors">
+              <Twitter className="w-6 h-6" />
+            </a>
           </div>
         </div>
       </footer>
