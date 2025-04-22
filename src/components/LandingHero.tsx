@@ -41,11 +41,14 @@ const exampleImages = [
 function LandingHero() {
   return (
     <section className="w-full h-screen overflow-hidden flex flex-col items-center justify-center relative">
-      {/* Waves background added */}
-      <WavesDemo className="absolute inset-0 z-0" />
+      {/* Waves background with reduced opacity */}
+      <WavesDemo className="absolute inset-0 z-0 opacity-50" />
 
-      {/* Floating images need to be relative to sit on top of waves */}
-      <FloatingAnimation className="absolute inset-0 w-full h-full pointer-events-none z-10"> {/* Added z-10 */}
+      {/* White overlay */}
+      <div className="absolute inset-0 bg-white opacity-50 z-5"></div>
+
+      {/* Floating images need to be relative to sit on top of waves & overlay */}
+      <FloatingAnimation className="absolute inset-0 w-full h-full pointer-events-none z-10"> {/* z-10 remains */}
         {/* Image 0: Hidden for this layout */}
         {/* <FloatingElement ... /> */}
 
@@ -118,8 +121,8 @@ function LandingHero() {
         </FloatingElement>
       </FloatingAnimation>
 
-      {/* Central text block (should remain centered by parent section) */}
-      <div className="relative flex flex-col justify-center items-center w-full max-w-md md:max-w-2xl lg:max-w-4xl px-4 mx-auto z-20 pointer-events-auto"> {/* Changed z-10 to z-20 */}
+      {/* Central text block (needs higher z-index than overlay) */}
+      <div className="relative flex flex-col justify-center items-center w-full max-w-md md:max-w-2xl lg:max-w-4xl px-4 mx-auto z-20 pointer-events-auto"> {/* z-20 remains */}
         <motion.h1
           className="text-3xl sm:text-5xl md:text-6xl lg:text-8xl text-center w-full justify-center items-center flex-col flex whitespace-pre leading-tight tracking-tight space-y-1 md:space-y-3"
           animate={{ opacity: 1, y: 0 }}
@@ -153,8 +156,7 @@ function LandingHero() {
           initial={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.2, ease: "easeOut", delay: 0.5 }}
         >
-          with a growing library of ready-to-use react components &
-          microinteractions. free & open source.
+          Transforming ideas into exceptional digital solutions with cutting-edge technology and thoughtful design.
         </motion.p>
 
         <div className="flex flex-row justify-center space-x-4 items-center mt-10 sm:mt-16 md:mt-20 lg:mt-20 text-xs">

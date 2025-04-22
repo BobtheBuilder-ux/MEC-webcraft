@@ -15,15 +15,35 @@ import {
 } from "@/components/ui/form";
 import { Github } from "lucide-react";
 import { ProjectFormValues } from "./ProjectFormTypes";
-import { submitProjectForm } from "./ProjectFormSubmit";
 import { ImageUploader } from "./ImageUploader";
 import { ScreenshotUploaders } from "./ScreenshotUploaders";
 
-export function ProjectUploadForm() {
+// Define Project type matching DashboardTabs
+interface Project {
+  id: number;
+  title: string;
+  description: string;
+  image: string; // Assuming this will store the main image preview URL
+  tags: string[]; // Assuming this will store split tags
+  category: string;
+  githubUrl?: string; // Optional based on your form
+  tools?: string[]; // Assuming this will store split tools
+  phoneScreenshot?: string; // Optional preview URL
+  desktopScreenshot?: string; // Optional preview URL
+}
+
+// Define props including the callback function
+interface ProjectUploadFormProps {
+  onAddProject: (newProjectData: Omit<Project, 'id'>) => void;
+}
+
+export function ProjectUploadForm({ onAddProject }: ProjectUploadFormProps) {
+  // State for file objects (if needed for upload logic, but previews are used for data)
   const [mainImage, setMainImage] = useState<File | null>(null);
   const [phoneScreenshot, setPhoneScreenshot] = useState<File | null>(null);
   const [desktopScreenshot, setDesktopScreenshot] = useState<File | null>(null);
   
+  // State for image preview URLs (Data URLs)
   const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
   const [phonePreview, setPhonePreview] = useState<string | null>(null);
   const [desktopPreview, setDesktopPreview] = useState<string | null>(null);
@@ -34,8 +54,8 @@ export function ProjectUploadForm() {
       description: "",
       category: "",
       githubUrl: "",
-      tools: "",
-      tags: "",
+      tools: "", // Comma-separated string
+      tags: "", // Comma-separated string
     },
   });
 
@@ -49,15 +69,26 @@ export function ProjectUploadForm() {
   };
 
   const onSubmit = (data: ProjectFormValues) => {
-    submitProjectForm(
-      data,
-      mainImage,
-      mainImagePreview,
-      phonePreview,
-      desktopPreview,
-      form.reset,
-      resetImages
-    );
+    // Construct the new project data object
+    const newProjectData: Omit<Project, 'id'> = {
+      title: data.title,
+      description: data.description,
+      category: data.category,
+      image: mainImagePreview || "/placeholder.svg", // Use preview URL, provide fallback
+      tags: data.tags.split(",").map(tag => tag.trim()).filter(tag => tag), // Split and trim tags
+      // Optional fields based on form values and previews
+      ...(data.githubUrl && { githubUrl: data.githubUrl }),
+      ...(data.tools && { tools: data.tools.split(",").map(tool => tool.trim()).filter(tool => tool) }),
+      ...(phonePreview && { phoneScreenshot: phonePreview }),
+      ...(desktopPreview && { desktopScreenshot: desktopPreview }),
+    };
+
+    // Call the handler passed from the parent
+    onAddProject(newProjectData);
+
+    // Reset form fields and image previews
+    form.reset();
+    resetImages();
   };
 
   return (

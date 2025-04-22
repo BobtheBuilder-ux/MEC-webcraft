@@ -1,8 +1,6 @@
-
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { ProjectCard } from "@/components/ProjectCard";
-import { projects } from "@/lib/data";
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -16,29 +14,32 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 
-export const ProjectsList = () => {
-  const [projectsList, setProjectsList] = useState([...projects]);
-  const { toast } = useToast();
+// Define props type, matching the Project interface from DashboardTabs
+interface Project {
+  id: number;
+  title: string;
+  description: string;
+  image: string;
+  tags: string[];
+  category: string;
+}
 
-  const handleDeleteProject = (id: number) => {
-    setProjectsList(prev => prev.filter(project => project.id !== id));
-    toast({
-      title: "Project deleted",
-      description: "The project has been successfully deleted.",
-    });
-  };
+interface ProjectsListProps {
+  projects: Project[]; // Expect projects array as prop
+  onDeleteProject: (id: number) => void; // Expect delete handler function as prop
+}
 
+export const ProjectsList = ({ projects, onDeleteProject }: ProjectsListProps) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-md mb-8">
       <h2 className="text-xl font-bold mb-4">Manage Projects</h2>
       <p className="text-gray-600 mb-6">
-        View and manage all your portfolio projects. Click on any project to view details or edit.
+        View and manage all your portfolio projects. Click the trash icon to delete.
       </p>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {projectsList.map((project, index) => (
+        {projects.map((project, index) => (
           <div key={project.id} className="relative">
             <ProjectCard
               title={project.title}
@@ -64,7 +65,7 @@ export const ProjectsList = () => {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => handleDeleteProject(project.id)}>
+                    <AlertDialogAction onClick={() => onDeleteProject(project.id)}>
                       Delete
                     </AlertDialogAction>
                   </AlertDialogFooter>

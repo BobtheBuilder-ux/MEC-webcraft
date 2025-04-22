@@ -1,62 +1,76 @@
-
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { useNavigate, Link } from "react-router-dom";
-import { Input } from "@/components/ui/input";
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate, Link } from 'react-router-dom';
 import { Navbar } from "@/components/Navbar";
 import { navItems } from "@/lib/data";
 import { User, Lock, Mail } from "lucide-react";
 
+const API_BASE_URL = "http://localhost:5000"; // Match backend URL
+
+// Form values type
+interface LoginFormValues {
+  username: string;
+  password: string;
+}
+
 const Login = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
   const navigate = useNavigate();
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-    email: "",
-  });
-  const [error, setError] = useState("");
+  const form = useForm<LoginFormValues>();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  const onSubmit = async (data: LoginFormValues) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+        mode: 'cors',
+        credentials: 'include'
+      });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+      const responseData = await response.json();
 
-    if (isRegistering) {
-      // Registration validation
-      if (!formData.email || !formData.username || !formData.password) {
-        setError("All fields are required");
-        return;
+      if (!response.ok) {
+        throw new Error(responseData.message || `HTTP error! status: ${response.status}`);
       }
-      
-      if (formData.email !== "bob@bobbieberry.com") {
-        setError("Email not recognized");
-        return;
-      }
-      
-      // If all validation passes for registration
-      toast.success("Registration successful!");
-      setIsRegistering(false);
-    } else {
-      // Login validation
-      if (
-        formData.username === "Admin-Miracle" &&
-        formData.password === "onlyBusiness2019..."
-      ) {
-        toast.success("Login successful!");
-        navigate("/dashboard");
+
+      // Assuming the backend sends back { accessToken: "..." }
+      if (responseData.accessToken) {
+        localStorage.setItem('authToken', responseData.accessToken);
+        toast({
+          title: "Login Successful",
+          description: "Welcome back!",
+        });
+        navigate('/dashboard'); // Redirect to dashboard after successful login
       } else {
-        setError("Invalid username or password");
+        throw new Error('Login failed: No access token received');
       }
+
+    } catch (err: any) {
+      console.error("Login failed:", err);
+      localStorage.removeItem('authToken'); // Clear token on failed login
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description: err.message || "Invalid credentials or server error.",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -66,87 +80,54 @@ const Login = () => {
 
       <main className="container mx-auto px-4 py-20">
         <div className="max-w-md mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="bg-white p-8 rounded-lg shadow-xl"
-          >
+          <div className="bg-white p-8 rounded-lg shadow-xl">
             <h1 className="text-3xl font-display font-bold mb-6 text-center">
-              {isRegistering ? "Create Account" : "Login"}
+              Login
             </h1>
             
-            {error && (
-              <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
-                <p className="text-red-700">{error}</p>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {isRegistering && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Email</label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                    <Input
-                      type="email"
-                      name="email"
-                      placeholder="bob@bobbieberry.com"
-                      className="pl-10"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Username</label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                  <Input
-                    type="text"
-                    name="username"
-                    placeholder={isRegistering ? "Choose a username" : "Admin-Miracle"}
-                    className="pl-10"
-                    value={formData.username}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Password</label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                  <Input
-                    type="password"
-                    name="password"
-                    placeholder={isRegistering ? "Choose a password" : "••••••••••••••"}
-                    className="pl-10"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full bg-[#FFD700] hover:bg-[#e6c300] text-black"
-              >
-                {isRegistering ? "Create Account" : "Login"}
-              </Button>
-            </form>
-
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="username"
+                  rules={{ required: 'Username is required' }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Username</FormLabel>
+                      <FormControl>
+                        <Input placeholder="admin" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  rules={{ required: 'Password is required' }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input type="password" placeholder="********" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" disabled={isLoading} className="w-full bg-[#FFD700] hover:bg-[#e6c300] text-black">
+                  {isLoading ? "Logging In..." : "Login"}
+                </Button>
+              </form>
+            </Form>
+            
             <div className="mt-6 text-center">
-              <button
-                onClick={() => setIsRegistering(!isRegistering)}
+              <Link
+                to="/register"
                 className="text-sm text-gray-600 hover:text-[#FFD700] transition-colors"
               >
-                {isRegistering
-                  ? "Already have an account? Login"
-                  : "Don't have an account? Register"}
-              </button>
+                Don't have an account? Register
+              </Link>
             </div>
             
             <div className="mt-8 text-center">
@@ -157,7 +138,7 @@ const Login = () => {
                 Back to Home
               </Link>
             </div>
-          </motion.div>
+          </div>
         </div>
       </main>
     </div>
