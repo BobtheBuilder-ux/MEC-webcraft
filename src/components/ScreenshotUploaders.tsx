@@ -1,51 +1,40 @@
-
 import React from "react";
 import { ImageUploader } from "./ImageUploader";
 
 interface ScreenshotUploadersProps {
-  phoneScreenshot: File | null;
-  setPhoneScreenshot: React.Dispatch<React.SetStateAction<File | null>>;
-  phonePreview: string | null;
-  setPhonePreview: React.Dispatch<React.SetStateAction<string | null>>;
-  desktopScreenshot: File | null;
-  setDesktopScreenshot: React.Dispatch<React.SetStateAction<File | null>>;
-  desktopPreview: string | null;
-  setDesktopPreview: React.Dispatch<React.SetStateAction<string | null>>;
+  phoneScreenshot: string;
+  setPhoneScreenshot: (url: string) => void;
+  desktopScreenshot: string;
+  setDesktopScreenshot: (url: string) => void;
 }
 
 export function ScreenshotUploaders({
   phoneScreenshot,
   setPhoneScreenshot,
-  phonePreview,
-  setPhonePreview,
   desktopScreenshot,
-  setDesktopScreenshot,
-  desktopPreview,
-  setDesktopPreview
+  setDesktopScreenshot
 }: ScreenshotUploadersProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
+        <h3 className="font-medium mb-2">Mobile Screenshot</h3>
+        <p className="text-sm text-gray-500 mb-4">
+          Upload a screenshot of your project's mobile view
+        </p>
         <ImageUploader 
-          label="Phone Screenshot"
-          description="Upload screenshot of mobile view"
-          placeholder="Upload phone screenshot"
-          image={phoneScreenshot}
-          setImage={setPhoneScreenshot}
-          preview={phonePreview}
-          setPreview={setPhonePreview}
+          currentImages={phoneScreenshot ? [phoneScreenshot] : []}
+          onImageUploaded={setPhoneScreenshot}
         />
       </div>
       
       <div>
+        <h3 className="font-medium mb-2">Desktop Screenshot</h3>
+        <p className="text-sm text-gray-500 mb-4">
+          Upload a screenshot of your project's desktop view
+        </p>
         <ImageUploader 
-          label="Desktop Screenshot"
-          description="Upload screenshot of desktop view"
-          placeholder="Upload desktop screenshot"
-          image={desktopScreenshot}
-          setImage={setDesktopScreenshot}
-          preview={desktopPreview}
-          setPreview={setDesktopPreview}
+          currentImages={desktopScreenshot ? [desktopScreenshot] : []}
+          onImageUploaded={setDesktopScreenshot}
         />
       </div>
     </div>

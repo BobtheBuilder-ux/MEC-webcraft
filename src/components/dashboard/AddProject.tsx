@@ -1,34 +1,34 @@
 import React from "react";
 import { ProjectUploadForm } from "@/components/ProjectUploadForm";
 
-// Define Project type matching DashboardTabs & ProjectUploadForm
+// Update Project type for Firebase
 interface Project {
-  id: number;
+  id: string;
   title: string;
   description: string;
-  image: string; 
-  tags: string[]; 
+  image: string;
+  tags: string[];
   category: string;
-  githubUrl?: string; 
-  tools?: string[]; 
-  phoneScreenshot?: string; 
-  desktopScreenshot?: string; 
+  githubUrl?: string;
+  tools?: string[];
+  phoneScreenshot?: string;
+  desktopScreenshot?: string;
 }
 
-// Define props including the callback function
 interface AddProjectProps {
   onAddProject: (newProjectData: Omit<Project, 'id'>) => void;
 }
 
-export const AddProject = ({ onAddProject }: AddProjectProps) => {
+export function AddProject({ onAddProject }: AddProjectProps) {
+  // Will be replaced with Firebase Storage upload logic
+  const handleAddProject = async (projectData: Omit<Project, 'id'>) => {
+    onAddProject(projectData);
+  };
+
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-bold mb-4">Add New Project</h2>
-      <p className="text-gray-600 mb-6">
-        Fill out the form below to add a new project to your portfolio.
-      </p>
-      {/* Pass the onAddProject prop down to the form component */}
-      <ProjectUploadForm onAddProject={onAddProject} /> 
+    <div className="max-w-4xl mx-auto p-6">
+      <h2 className="text-2xl font-bold mb-6">Add New Project</h2>
+      <ProjectUploadForm onAddProject={handleAddProject} />
     </div>
   );
-};
+}

@@ -1,73 +1,83 @@
-
-import React from "react";
-import { FileImage } from "lucide-react";
-import { FormDescription, FormLabel } from "@/components/ui/form";
+import React, { useState } from 'react';
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { optimizeImage } from '@/lib/imageOptimizer';
 
 interface ImageUploaderProps {
-  label: string;
-  description?: string;
-  placeholder: string;
-  image: File | null;
-  setImage: React.Dispatch<React.SetStateAction<File | null>>;
-  setPreview: React.Dispatch<React.SetStateAction<string | null>>;
-  preview: string | null;
+  onImageUploaded: (imageUrl: string) => void;
+  currentImages?: string[];
+  label?: string;
+  maxWidth?: number;
+  quality?: number;
 }
 
-export function ImageUploader({
-  label,
-  description,
-  placeholder,
-  image,
-  setImage,
-  setPreview,
-  preview
+export function ImageUploader({ 
+  onImageUploaded, 
+  currentImages = [],
+  label = "Upload Image",
+  maxWidth = 1200,
+  quality = 0.8 
 }: ImageUploaderProps) {
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setImage(file);
-      
-      // Create preview URL
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          setPreview(e.target.result as string);
-        }
-      };
-      reader.readAsDataURL(file);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      console.error('No file selected');
+      return;
+    }
+
+    console.log('Selected file:', file);
+
+    try {
+      setIsLoading(true);
+      const optimizedImageUrl = await optimizeImage(file, { maxWidth, quality });
+      console.log('Optimized image URL:', optimizedImageUrl);
+      onImageUploaded(optimizedImageUrl);
+
+      toast({
+        title: "Success",
+        description: "Image optimized and uploaded successfully",
+      });
+    } catch (error) {
+      console.error('Failed to process image:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to process image. Please try again.",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div>
-      <FormLabel>{label}</FormLabel>
-      <div className="mt-2 flex items-center gap-4">
-        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
-          <div className="flex flex-col items-center justify-center pt-5 pb-6">
-            <FileImage className="w-8 h-8 mb-2 text-gray-500" />
-            <p className="text-sm text-gray-500">
-              {image ? image.name : placeholder}
-            </p>
-          </div>
-          <input 
-            type="file" 
-            accept="image/*" 
-            className="hidden" 
-            onChange={handleImageChange}
-          />
-        </label>
-        
-        {preview && (
-          <div className="h-32 w-32 relative border rounded-lg overflow-hidden">
+    <div className="flex flex-col gap-4">
+      <Input
+        type="file"
+        accept="image/*"
+        onChange={handleImageChange}
+        disabled={isLoading}
+        aria-label={label}
+      />
+      {isLoading && (
+        <div className="flex items-center justify-center">
+          <div className="animate-spin w-6 h-6 border-2 border-[#FFD700] border-t-transparent rounded-full"></div>
+        </div>
+      )}
+      {currentImages.length > 0 && (
+        <div className="mt-4">
+          {currentImages.map((image, index) => (
             <img 
-              src={preview} 
-              alt={`${label} preview`} 
-              className="h-full w-full object-cover"
+              key={index}
+              src={image}
+              alt="Uploaded image preview"
+              className="max-h-40 rounded-md"
             />
-          </div>
-        )}
-      </div>
-      {description && <FormDescription>{description}</FormDescription>}
+          ))}
+        </div>
+      )}
     </div>
   );
 }

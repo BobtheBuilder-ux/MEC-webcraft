@@ -1,144 +1,62 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Navbar } from "@/components/Navbar";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from 'react-router-dom'; // For redirecting after success
-
-const API_BASE_URL = "http://localhost:5000"; // Match backend URL
-
-// Form values type
-interface RegisterFormValues {
-  username: string;
-  password: string;
-  confirmPassword: string;
-}
+import { registerUser } from "@/lib/firebaseUtils";
+import { signInWithPopup } from 'firebase/auth';
+import { auth, provider } from '@/lib/firebase';
+import { navItems } from "@/lib/data";
+import RegisterForm from "@/components/ui/register-form";
 
 const Register = () => {
-  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const form = useForm<RegisterFormValues>({
-    defaultValues: {
-      username: "",
-      password: "",
-      confirmPassword: "",
-    },
-  });
 
-  const onSubmit = async (data: RegisterFormValues) => {
-    if (data.password !== data.confirmPassword) {
-      form.setError("confirmPassword", {
-        type: "manual",
-        message: "Passwords do not match",
-      });
-      return;
-    }
-    setIsLoading(true);
+  // Handle registration with email/password
+  const handleRegister = async (email: string, password: string) => {
     try {
-      console.log('Attempting to register user...', { username: data.username });
-      const response = await fetch(`${API_BASE_URL}/api/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username: data.username, password: data.password })
-      }).catch(error => {
-        console.error('Network error:', error);
-        throw new Error('Network error - Is the backend server running?');
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('Server error:', errorData);
-        throw new Error(errorData.message || `Server error: ${response.status}`);
-      }
-
-      const responseData = await response.json();
-      console.log('Registration successful:', responseData);
-
+      await registerUser(email, password);
       toast({
         title: "Registration Successful",
-        description: responseData.message || "Admin user created.",
+        description: "Your account has been created.",
       });
-      navigate('/login'); // Redirect to login page after successful registration
-
-    } catch (err: any) {
-      console.error("Registration failed:", err);
+      navigate('/dashboard');
+    } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Registration Failed",
-        description: err.message || "Could not register user. Please try again.",
+        title: "Error",
+        description: error.message || "Failed to register. Please try again.",
       });
-    } finally {
-      setIsLoading(false);
+      throw error; // Re-throw to allow form to handle error state
+    }
+  };
+
+  // Handle Google sign-in
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      toast({
+        title: "Registration Successful",
+        description: `Welcome, ${result.user.displayName}!`,
+      });
+      navigate('/dashboard');
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to sign in with Google.",
+      });
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center">Register Admin User</h2>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="username"
-              rules={{ required: 'Username is required' }} // Add basic validation rules
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <Input placeholder="admin" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              rules={{ required: 'Password is required', minLength: { value: 8, message: 'Password must be at least 8 characters' } }}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="********" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              rules={{ required: 'Please confirm your password' }}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="********" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" disabled={isLoading} className="w-full bg-[#FFD700] hover:bg-[#e6c300] text-black">
-              {isLoading ? "Registering..." : "Register"}
-            </Button>
-          </form>
-        </Form>
-      </div>
-    </div>
+    <>
+      <Navbar items={navItems} />
+      <RegisterForm 
+        onRegister={handleRegister}
+        onGoogleSignIn={handleGoogleSignIn}
+      />
+    </>
   );
 };
 

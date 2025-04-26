@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Link, useLocation } from "react-router-dom";
 
 interface NavItem {
   name: string;
@@ -15,50 +16,36 @@ interface NavBarProps {
 }
 
 export function Navbar({ items, className }: NavBarProps) {
-  const [activeTab, setActiveTab] = useState(items[0].name);
-  const [isMobile, setIsMobile] = useState(false);
+  const location = useLocation();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [showTopNav, setShowTopNav] = useState(true);
-  const lastScrollY = useRef(0);
-
-  useEffect(() => {
+  
+  // Determine active tab based on current path
+  const currentPath = location.pathname;
+  const activeTabName = items.find(item => 
+    currentPath === item.url || 
+    (item.url !== '/' && currentPath.startsWith(item.url))
+  )?.name || items[0].name;
+  
+  React.useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
     };
 
     const handleScroll = () => {
-      const sections = items.map(item => ({ 
-        id: item.name, 
-        element: document.querySelector(item.url) 
-      }));
-      
-      let currentActiveSection = items[0].name;
-      
-      sections.forEach(section => {
-        if (!section.element) return;
-        
-        const rect = section.element.getBoundingClientRect();
-        if (rect.top <= 200 && rect.bottom >= 200) {
-          currentActiveSection = section.id;
-        }
-      });
-      
-      setActiveTab(currentActiveSection);
-
       if (isMobile) {
         const currentScrollY = window.scrollY;
-        if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
+        if (currentScrollY > 50) {
           setShowTopNav(false);
         } else {
           setShowTopNav(true);
         }
-        lastScrollY.current = currentScrollY;
       } else {
         setShowTopNav(true);
       }
     };
 
     handleResize();
-    handleScroll();
     window.addEventListener("resize", handleResize);
     window.addEventListener("scroll", handleScroll, { passive: true });
     
@@ -66,25 +53,18 @@ export function Navbar({ items, className }: NavBarProps) {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [items, isMobile]);
+  }, [isMobile]);
 
   const navContent = (
     <div className="flex items-center gap-3 border border-black/10 py-1 px-1 rounded-full shadow-lg bg-white backdrop-blur-lg">
       {items.map((item) => {
         const Icon = item.icon;
-        const isActive = activeTab === item.name;
+        const isActive = activeTabName === item.name;
 
         return (
-          <a
+          <Link
             key={item.name}
-            href={item.url}
-            onClick={(e) => {
-              e.preventDefault();
-              setActiveTab(item.name);
-              document.querySelector(item.url)?.scrollIntoView({
-                behavior: "smooth"
-              });
-            }}
+            to={item.url}
             className={cn(
               "relative cursor-pointer text-sm font-semibold px-6 py-2 rounded-full transition-colors",
               "text-black hover:text-[#FFD700]",
@@ -113,7 +93,7 @@ export function Navbar({ items, className }: NavBarProps) {
                 </div>
               </motion.div>
             )}
-          </a>
+          </Link>
         );
       })}
     </div>

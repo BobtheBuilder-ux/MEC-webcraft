@@ -1,80 +1,90 @@
-import React from "react";
-import { motion } from "framer-motion";
-import { ProjectCard } from "@/components/ProjectCard";
-import { 
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Trash2 } from 'lucide-react';
 
-// Define props type, matching the Project interface from DashboardTabs
 interface Project {
-  id: number;
+  id: string;
   title: string;
   description: string;
   image: string;
   tags: string[];
   category: string;
+  githubUrl?: string;
+  tools?: string[];
+  phoneScreenshot?: string;
+  desktopScreenshot?: string;
 }
 
 interface ProjectsListProps {
-  projects: Project[]; // Expect projects array as prop
-  onDeleteProject: (id: number) => void; // Expect delete handler function as prop
+  projects: Project[];
+  isLoading: boolean;
+  onDeleteProject: (id: string) => void;
 }
 
-export const ProjectsList = ({ projects, onDeleteProject }: ProjectsListProps) => {
-  return (
-    <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-      <h2 className="text-xl font-bold mb-4">Manage Projects</h2>
-      <p className="text-gray-600 mb-6">
-        View and manage all your portfolio projects. Click the trash icon to delete.
-      </p>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {projects.map((project, index) => (
-          <div key={project.id} className="relative">
-            <ProjectCard
-              title={project.title}
-              description={project.description}
-              image={project.image}
-              tags={project.tags}
-              index={index}
-              id={project.id}
-            />
-            <div className="absolute top-3 right-3">
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive" size="sm" className="rounded-full p-2">
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Project</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to delete this project? This action cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => onDeleteProject(project.id)}>
-                      Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          </div>
-        ))}
+export function ProjectsList({ projects, isLoading, onDeleteProject }: ProjectsListProps) {
+  const handleDelete = (id: string) => {
+    if (window.confirm('Are you sure you want to delete this project?')) {
+      onDeleteProject(id);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="rounded-md border p-8">
+        <div className="flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FFD700]"></div>
+        </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Title</TableHead>
+            <TableHead>Category</TableHead>
+            <TableHead>Tags</TableHead>
+            <TableHead>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {projects.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={4} className="text-center py-8">
+                No projects found. Add your first project!
+              </TableCell>
+            </TableRow>
+          ) : (
+            projects.map((project) => (
+              <TableRow key={project.id}>
+                <TableCell className="font-medium">{project.title}</TableCell>
+                <TableCell>{project.category}</TableCell>
+                <TableCell>{project.tags.join(', ')}</TableCell>
+                <TableCell>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDelete(project.id)}
+                    className="hover:bg-destructive/10 hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
-};
+}

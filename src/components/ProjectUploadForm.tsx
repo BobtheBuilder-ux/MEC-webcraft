@@ -1,255 +1,261 @@
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Github } from "lucide-react";
-import { ProjectFormValues } from "./ProjectFormTypes";
-import { ImageUploader } from "./ImageUploader";
-import { ScreenshotUploaders } from "./ScreenshotUploaders";
+import { ImageUploader } from "@/components/ImageUploader";
+import { useToast } from "@/hooks/use-toast";
 
-// Define Project type matching DashboardTabs
+// Update Project type for Firebase
 interface Project {
-  id: number;
+  id: string;
   title: string;
   description: string;
-  image: string; // Assuming this will store the main image preview URL
-  tags: string[]; // Assuming this will store split tags
+  image: string;
+  tags: string[];
   category: string;
-  githubUrl?: string; // Optional based on your form
-  tools?: string[]; // Assuming this will store split tools
-  phoneScreenshot?: string; // Optional preview URL
-  desktopScreenshot?: string; // Optional preview URL
+  githubUrl?: string;
+  tools?: string[];
+  phoneScreenshot?: string;
+  desktopScreenshot?: string;
 }
 
-// Define props including the callback function
 interface ProjectUploadFormProps {
   onAddProject: (newProjectData: Omit<Project, 'id'>) => void;
 }
 
 export function ProjectUploadForm({ onAddProject }: ProjectUploadFormProps) {
-  // State for file objects (if needed for upload logic, but previews are used for data)
-  const [mainImage, setMainImage] = useState<File | null>(null);
-  const [phoneScreenshot, setPhoneScreenshot] = useState<File | null>(null);
-  const [desktopScreenshot, setDesktopScreenshot] = useState<File | null>(null);
-  
-  // State for image preview URLs (Data URLs)
-  const [mainImagePreview, setMainImagePreview] = useState<string | null>(null);
-  const [phonePreview, setPhonePreview] = useState<string | null>(null);
-  const [desktopPreview, setDesktopPreview] = useState<string | null>(null);
-  
-  const form = useForm<ProjectFormValues>({
-    defaultValues: {
-      title: "",
-      description: "",
-      category: "",
-      githubUrl: "",
-      tools: "", // Comma-separated string
-      tags: "", // Comma-separated string
-    },
+  const { toast } = useToast();
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    image: '',
+    tags: '',
+    category: '',
+    githubUrl: '',
+    tools: '',
+    phoneScreenshot: '',
+    desktopScreenshot: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const resetImages = () => {
-    setMainImage(null);
-    setPhoneScreenshot(null);
-    setDesktopScreenshot(null);
-    setMainImagePreview(null);
-    setPhonePreview(null);
-    setDesktopPreview(null);
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const onSubmit = (data: ProjectFormValues) => {
-    // Construct the new project data object
-    const newProjectData: Omit<Project, 'id'> = {
-      title: data.title,
-      description: data.description,
-      category: data.category,
-      image: mainImagePreview || "/placeholder.svg", // Use preview URL, provide fallback
-      tags: data.tags.split(",").map(tag => tag.trim()).filter(tag => tag), // Split and trim tags
-      // Optional fields based on form values and previews
-      ...(data.githubUrl && { githubUrl: data.githubUrl }),
-      ...(data.tools && { tools: data.tools.split(",").map(tool => tool.trim()).filter(tool => tool) }),
-      ...(phonePreview && { phoneScreenshot: phonePreview }),
-      ...(desktopPreview && { desktopScreenshot: desktopPreview }),
-    };
+  const handleImageUpload = (imageUrl: string, field: keyof typeof formData) => {
+    setFormData(prev => ({ ...prev, [field]: imageUrl }));
+  };
 
-    // Call the handler passed from the parent
-    onAddProject(newProjectData);
+  const validateForm = () => {
+    if (!formData.title.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Title Required",
+        description: "Please enter a project title.",
+      });
+      return false;
+    }
 
-    // Reset form fields and image previews
-    form.reset();
-    resetImages();
+    if (!formData.description.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Description Required",
+        description: "Please enter a project description.",
+      });
+      return false;
+    }
+
+    if (!formData.image) {
+      toast({
+        variant: "destructive",
+        title: "Main Image Required",
+        description: "Please upload a main project image.",
+      });
+      return false;
+    }
+
+    if (!formData.category.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Category Required",
+        description: "Please enter a project category.",
+      });
+      return false;
+    }
+
+    if (!formData.tags.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Tags Required",
+        description: "Please enter at least one project tag.",
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+    
+    setIsSubmitting(true);
+
+    try {
+      // Clean and prepare the data
+      const projectData: Omit<Project, 'id'> = {
+        title: formData.title.trim(),
+        description: formData.description.trim(),
+        image: formData.image,
+        tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
+        category: formData.category.trim(),
+        // Only include optional fields if they have actual values
+        ...(formData.githubUrl.trim() && { githubUrl: formData.githubUrl.trim() }),
+        tools: formData.tools ? formData.tools.split(',').map(tool => tool.trim()).filter(Boolean) : [],
+        ...(formData.phoneScreenshot && { phoneScreenshot: formData.phoneScreenshot }),
+        ...(formData.desktopScreenshot && { desktopScreenshot: formData.desktopScreenshot })
+      };
+
+      console.log('Submitting project with data:', projectData);
+      await onAddProject(projectData);
+      
+      // Reset form
+      setFormData({
+        title: '',
+        description: '',
+        image: '',
+        tags: '',
+        category: '',
+        githubUrl: '',
+        tools: '',
+        phoneScreenshot: '',
+        desktopScreenshot: ''
+      });
+
+      toast({
+        title: "Success",
+        description: "Project added successfully!",
+      });
+    } catch (error) {
+      console.error('Error submitting project:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to add project. Please try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div>
+        <label htmlFor="title" className="block text-sm font-medium mb-1">Title *</label>
+        <Input
+          id="title"
           name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Project Title</FormLabel>
-              <FormControl>
-                <Input placeholder="E-Commerce Website" {...field} />
-              </FormControl>
-              <FormDescription>
-                Enter the name of your project
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
+          value={formData.title}
+          onChange={handleInputChange}
+          required
+          placeholder="Project title"
         />
-        
-        <FormField
-          control={form.control}
+      </div>
+
+      <div>
+        <label htmlFor="description" className="block text-sm font-medium mb-1">Description *</label>
+        <Textarea
+          id="description"
           name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea 
-                  placeholder="A responsive e-commerce website with product listings and checkout functionality" 
-                  className="min-h-[120px]"
-                  {...field} 
-                />
-              </FormControl>
-              <FormDescription>
-                Provide a detailed description of your project
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
+          value={formData.description}
+          onChange={handleInputChange}
+          required
+          placeholder="Project description"
+          rows={4}
         />
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="category"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Category</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="WordPress">WordPress</SelectItem>
-                    <SelectItem value="JavaScript">JavaScript</SelectItem>
-                    <SelectItem value="React">React</SelectItem>
-                    <SelectItem value="Python">Python</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormDescription>
-                  Choose the main technology used
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="tools"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tools Used</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="React, Node.js, MongoDB, etc." 
-                    {...field} 
-                  />
-                </FormControl>
-                <FormDescription>
-                  Enter tools separated by commas
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        
-        <FormField
-          control={form.control}
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Main Image *</label>
+        <ImageUploader
+          currentImages={formData.image ? [formData.image] : []}
+          onImageUploaded={(url) => handleImageUpload(url, 'image')}
+        />
+      </div>
+
+      <div>
+        <label htmlFor="category" className="block text-sm font-medium mb-1">Category *</label>
+        <Input
+          id="category"
+          name="category"
+          value={formData.category}
+          onChange={handleInputChange}
+          required
+          placeholder="e.g., React, WordPress, Python"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="tags" className="block text-sm font-medium mb-1">Tags *</label>
+        <Input
+          id="tags"
           name="tags"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tags</FormLabel>
-              <FormControl>
-                <Input placeholder="Frontend, Backend, Full Stack, etc." {...field} />
-              </FormControl>
-              <FormDescription>
-                Enter tags separated by commas
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
+          value={formData.tags}
+          onChange={handleInputChange}
+          required
+          placeholder="Comma-separated tags e.g., React, TypeScript, Firebase"
         />
-        
-        <FormField
-          control={form.control}
+      </div>
+
+      <div>
+        <label htmlFor="tools" className="block text-sm font-medium mb-1">Tools Used</label>
+        <Input
+          id="tools"
+          name="tools"
+          value={formData.tools}
+          onChange={handleInputChange}
+          placeholder="Comma-separated tools e.g., VS Code, Git, npm"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="githubUrl" className="block text-sm font-medium mb-1">GitHub URL</label>
+        <Input
+          id="githubUrl"
           name="githubUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>GitHub Repository URL</FormLabel>
-              <div className="relative">
-                <Github className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                <FormControl>
-                  <Input placeholder="https://github.com/username/repo" className="pl-10" {...field} />
-                </FormControl>
-              </div>
-              <FormDescription>
-                Enter the URL to your project's GitHub repository
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
+          type="url"
+          value={formData.githubUrl}
+          onChange={handleInputChange}
+          placeholder="https://github.com/username/project"
         />
-        
-        <div className="space-y-4">
-          <div>
-            <ImageUploader
-              label="Main Project Image"
-              description="Upload the main image for your project"
-              placeholder="Upload main project image"
-              image={mainImage}
-              setImage={setMainImage}
-              preview={mainImagePreview}
-              setPreview={setMainImagePreview}
-            />
-          </div>
-          
-          <ScreenshotUploaders
-            phoneScreenshot={phoneScreenshot}
-            setPhoneScreenshot={setPhoneScreenshot}
-            phonePreview={phonePreview}
-            setPhonePreview={setPhonePreview}
-            desktopScreenshot={desktopScreenshot}
-            setDesktopScreenshot={setDesktopScreenshot}
-            desktopPreview={desktopPreview}
-            setDesktopPreview={setDesktopPreview}
-          />
-        </div>
-        
-        <Button type="submit" className="bg-[#FFD700] hover:bg-[#e6c300] text-black">
-          Add Project
-        </Button>
-      </form>
-    </Form>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Phone Screenshot</label>
+        <ImageUploader
+          currentImages={formData.phoneScreenshot ? [formData.phoneScreenshot] : []}
+          onImageUploaded={(url) => handleImageUpload(url, 'phoneScreenshot')}
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Desktop Screenshot</label>
+        <ImageUploader
+          currentImages={formData.desktopScreenshot ? [formData.desktopScreenshot] : []}
+          onImageUploaded={(url) => handleImageUpload(url, 'desktopScreenshot')}
+        />
+      </div>
+
+      <Button 
+        type="submit" 
+        className="w-full"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? "Adding Project..." : "Add Project"}
+      </Button>
+    </form>
   );
 }
