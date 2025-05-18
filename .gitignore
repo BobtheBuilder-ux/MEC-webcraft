@@ -1,8 +1,38 @@
+# dependencies
 node_modules
-.env
-.env.production
-server/.env
-server/.env.production
 dist
 public_html
+
+# environment files
+.env
+.env.*
+env.example
+*.env
+server/.env
+server/.env.*
+server/env.example
+
+# misc
 .DS_Store
+*.pem
+.cache
+.vercel
+.output
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# local files
+*.local
+
+# IDE
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

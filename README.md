@@ -88,10 +88,6 @@ This project uses environment variables for secret management. Follow these step
 3. Fill in your production credentials
 4. Never commit `.env` or `.env.production` files to version control
 
-### Hostinger Deployment
-1. Add production environment variables in Hostinger's environment variable settings
-2. Required variables are listed in `.env.example` and `server/.env.example`
-
 ### API Keys Security
 - Frontend environment variables (VITE_*) will be embedded in the client-side build
 - Keep sensitive credentials like GOOGLE_PRIVATE_KEY in server-side environment only
