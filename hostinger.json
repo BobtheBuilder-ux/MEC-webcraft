@@ -1,0 +1,20 @@
+{
+  "site": {
+    "name": "mecwebcraft",
+    "domain": "mecwebcraft.com",
+    "buildCommand": "npm run build:production",
+    "buildOutput": "public_html",
+    "framework": "vite",
+    "node": "18.x"
+  },
+  "build": {
+    "env": {
+      "NODE_ENV": "production"
+    }
+  },
+  "github": {
+    "branch": "main",
+    "deploy": true,
+    "autoDeploy": true
+  }
+}
