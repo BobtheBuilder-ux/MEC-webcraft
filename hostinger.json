@@ -2,11 +2,11 @@
   "site": {
     "name": "mecwebcraft",
     "domain": "mecwebcraft.com",
-    "buildCommand": "npm run build:production",
+    "buildCommand": "php deploy.php",
     "buildOutput": "public_html",
     "framework": "vite",
     "node": "18.x",
-    "type": "nodejs"
+    "type": "static"
   },
   "build": {
     "env": {
@@ -17,15 +17,5 @@
     "branch": "main",
     "deploy": true,
     "autoDeploy": true
-  },
-  "hosting": {
-    "engine": "nodejs",
-    "public": "public_html",
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ]
   }
 }
