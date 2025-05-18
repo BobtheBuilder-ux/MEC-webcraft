@@ -5,12 +5,6 @@
     "require": {
         "php": ">=7.4"
     },
-    "scripts": {
-        "post-install-cmd": [
-            "npm install",
-            "npm run build:production"
-        ]
-    },
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",

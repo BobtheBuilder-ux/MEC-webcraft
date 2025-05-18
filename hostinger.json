@@ -2,11 +2,8 @@
   "site": {
     "name": "mecwebcraft",
     "domain": "mecwebcraft.com",
-    "buildCommand": "php deploy.php",
-    "buildOutput": "public_html",
-    "framework": "vite",
-    "node": "18.x",
-    "type": "static"
+    "type": "static",
+    "buildOutput": "public_html"
   },
   "build": {
     "env": {
