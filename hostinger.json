@@ -5,7 +5,8 @@
     "buildCommand": "npm run build:production",
     "buildOutput": "public_html",
     "framework": "vite",
-    "node": "18.x"
+    "node": "18.x",
+    "type": "nodejs"
   },
   "build": {
     "env": {
@@ -16,5 +17,15 @@
     "branch": "main",
     "deploy": true,
     "autoDeploy": true
+  },
+  "hosting": {
+    "engine": "nodejs",
+    "public": "public_html",
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
   }
 }

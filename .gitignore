@@ -1,1 +1,8 @@
 node_modules
+.env
+.env.production
+server/.env
+server/.env.production
+dist
+public_html
+.DS_Store
