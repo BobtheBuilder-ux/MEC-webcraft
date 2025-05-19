@@ -80,9 +80,8 @@ export function Portfolio({ projects, showViewAll = false }: PortfolioProps) {
           transition={{ duration: 0.6 }}
           className="max-w-3xl mx-auto text-center mb-10"
         >
-          <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">Featured Projects</h2>
           <p className="text-gray-600">
-            Explore my latest work and creative solutions across different platforms and technologies.
+          Explore my latest work and creative solutions across different platforms and technologies.
           </p>
         </motion.div>
 

@@ -1,15 +1,18 @@
-import React, { useState, useEffect } from "react";
+import * as React from "react";
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import LandingHero from "@/components/LandingHero";
 import { Portfolio } from "@/components/Portfolio";
 import LeadCaptureForm from "@/components/LeadCaptureForm";
 import { navItems, skills } from "@/lib/data";
-import { CheckCircle2, Github, Linkedin, Twitter, Instagram, Mail } from "lucide-react";
+import * as LucideIcons from "lucide-react";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { getAllProjects } from "@/lib/firebaseUtils";
 import { onAuthStateChange } from "@/lib/firebaseUtils";
+
+const { CheckCircle2, Github, Linkedin, Twitter, Instagram, Mail } = LucideIcons;
 
 interface Project {
   id: string;
@@ -60,19 +63,19 @@ const About: React.FC = () => (
           </div>
           
           <div className="flex gap-3">
-            <a href="#" className="p-2 rounded-full text-gray-600 bg-gray-100 hover:bg-[#FFD700] hover:text-black transition-colors duration-200" aria-label="Github">
+            <a href="https://github.com/BobtheBuilder-ux" className="p-2 rounded-full text-gray-600 bg-gray-100 hover:bg-[#FFD700] hover:text-black transition-colors duration-200" aria-label="Github">
               <Github size={20} />
             </a>
-            <a href="#" className="p-2 rounded-full text-gray-600 bg-gray-100 hover:bg-[#FFD700] hover:text-black transition-colors duration-200" aria-label="LinkedIn">
+            <a href="https://www.linkedin.com/in/miracle-ezechukwu/" className="p-2 rounded-full text-gray-600 bg-gray-100 hover:bg-[#FFD700] hover:text-black transition-colors duration-200" aria-label="LinkedIn">
               <Linkedin size={20} />
             </a>
-            <a href="#" className="p-2 rounded-full text-gray-600 bg-gray-100 hover:bg-[#FFD700] hover:text-black transition-colors duration-200" aria-label="Twitter">
+            <a href="https://x.com/mecwebcraft" className="p-2 rounded-full text-gray-600 bg-gray-100 hover:bg-[#FFD700] hover:text-black transition-colors duration-200" aria-label="Twitter">
               <Twitter size={20} />
             </a>
-            <a href="#" className="p-2 rounded-full text-gray-600 bg-gray-100 hover:bg-[#FFD700] hover:text-black transition-colors duration-200" aria-label="Instagram">
+            <a href="https://www.instagram.com/mecwebcraft" className="p-2 rounded-full text-gray-600 bg-gray-100 hover:bg-[#FFD700] hover:text-black transition-colors duration-200" aria-label="Instagram">
               <Instagram size={20} />
             </a>
-            <a href="#" className="p-2 rounded-full text-gray-600 bg-gray-100 hover:bg-[#FFD700] hover:text-black transition-colors duration-200" aria-label="Email">
+            <a href="mailto:miracle@mecwebcraft.com" className="p-2 rounded-full text-gray-600 bg-gray-100 hover:bg-[#FFD700] hover:text-black transition-colors duration-200" aria-label="Email">
               <Mail size={20} />
             </a>
           </div>
@@ -88,7 +91,7 @@ const About: React.FC = () => (
           <div className="relative">
             <div className="w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-[#FFD700]">
               <img 
-                src="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1374&auto=format&fit=crop" 
+                src="/Images/miracle.jpeg" 
                 alt="Professional headshot" 
                 className="w-full h-full object-cover"
               />

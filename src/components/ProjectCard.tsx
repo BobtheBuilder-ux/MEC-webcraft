@@ -6,6 +6,13 @@ import { motion } from "framer-motion";
 import { Pencil, Trash2 } from "lucide-react";
 import { Link } from 'react-router-dom';
 
+// Truncate text to a maximum of 100 words
+const truncateDescription = (text: string): string => {
+  const words = text.trim().split(/\s+/);
+  if (words.length <= 50) return text;
+  return words.slice(0, 50).join(' ') + '...';
+};
+
 interface Project {
   id: string;
   title: string;
@@ -67,7 +74,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onDelete, isA
           </div>
           <CardContent className="p-4">
             <h3 className="text-lg font-semibold mb-2">{project.title}</h3>
-            <p className="text-sm text-gray-600 mb-4">{project.description}</p>
+            <p className="text-sm text-gray-600 mb-4">{truncateDescription(project.description)}</p>
             <div className="flex flex-wrap gap-2">
               {project.tags.map((tag, index) => (
                 <Badge key={index} variant="secondary">
