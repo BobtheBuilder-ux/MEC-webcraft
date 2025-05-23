@@ -72,7 +72,8 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
   } as Plugin);
 
   return {
-    base: mode === 'production' ? '/' : '/',
+    base: './',
+    publicDir: 'public',
     server: {
       host: "localhost",
       port: 8080,
@@ -97,7 +98,11 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
       },
       outDir: 'public_html',
       emptyOutDir: true,
+      assetsDir: 'assets',
       rollupOptions: {
+        input: {
+          main: path.resolve(__dirname, 'index.html')
+        },
         output: {
           manualChunks: {
             'react-vendor': ['react', 'react-dom', 'react-router-dom'],
@@ -107,7 +112,8 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
               '@/components/ui/input',
               '@/components/ui/toast',
               '@/components/ui/toaster',
-              '@/components/ui/tooltip'
+              '@/components/ui/tooltip',
+              '@/components/ui/auth-form'
             ],
             'page-components': [
               '@/components/Navbar',
@@ -115,10 +121,19 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
               '@/components/Portfolio',
               '@/components/Contact'
             ],
+            'auth': [
+              '@/pages/Login',
+              '@/pages/Register',
+              '@/pages/ResetPassword',
+              '@/components/ProtectedRoute'
+            ],
             'dashboard': [
+              '@/pages/Dashboard',
               '@/components/dashboard/DashboardTabs',
               '@/components/dashboard/ProjectsList',
-              '@/components/dashboard/AddProject'
+              '@/components/dashboard/AddProject',
+              '@/components/dashboard/BlogDashboard',
+              '@/components/dashboard/LeadsDashboard'
             ]
           }
         }

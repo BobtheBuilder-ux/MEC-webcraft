@@ -39,21 +39,31 @@ const About: React.FC = () => (
           transition={{ duration: 0.6 }}
           className="order-2 md:order-1"
         >
-          <h3 className="text-2xl font-bold mb-4">Web Designer & Developer with 5+ Years of Experience</h3>
+          <h3 className="text-2xl font-bold mb-4">Web Designer & Full-Stack Developer with 5+ Years of Experience</h3>
           
-          <p className="mb-4 text-black/80">
-            I'm a passionate web designer specializing in creating beautiful, functional websites 
-            that help businesses achieve their goals. With expertise in WordPress, responsive design, 
-            and custom themes, I bring a creative approach to every project.
-          </p>
-          
-          <p className="mb-6 text-black/80">
-            My design philosophy centers around clean aesthetics, intuitive user experiences, and 
-            optimized performance. I believe that great design should not only look good but also 
-            solve problems and deliver results.
-          </p>
+          <div className="space-y-6 text-black/80">
+            <p>
+              My name is Miracle Ezechukwu Chimaroke (MEC), I am a passionate and technically proficient web designer and full-stack developer, specializing in building sophisticated, scalable, and high-performance websites and web applications that drive business success. My core expertise spans WordPress development—including custom themes and plugins—as well as modern JavaScript frameworks such as React for building dynamic, responsive user interfaces.
+            </p>
+            
+            <p>
+              On the backend, I leverage Node.js and Express.js to develop robust, RESTful APIs and server-side applications, ensuring seamless integration and efficient data management. I am also skilled in Python, using it for scripting, automation, and developing backend services that enhance application functionality and performance.
+            </p>
 
-          <div className="mb-8">
+            <p>
+              My experience extends to Cloud Computing platforms, specifically Google Cloud and AWS, where I architect, deploy, and maintain scalable cloud-based infrastructures that optimize uptime, security, and load balancing. This cloud proficiency enables me to deliver reliable, secure, and globally accessible web solutions.
+            </p>
+
+            <p>
+              My workflow is grounded in agile methodologies, emphasizing iterative development, continuous integration and deployment (CI/CD), and rigorous testing to ensure code quality and maintainability. I utilize version control systems such as Git and collaborative tools like Jira and Slack to maintain transparent, efficient communication and project tracking with clients and cross-functional teams.
+            </p>
+
+            <p>
+              Collaboration is central to my process—I prioritize understanding client goals thoroughly and maintaining open, responsive communication throughout the project lifecycle. By integrating user feedback and analytics, I iteratively refine designs and functionalities to ensure the end product not only meets but exceeds expectations.
+            </p>
+          </div>
+
+          <div className="mb-8 mt-8">
             <h4 className="font-bold mb-3">My Skills</h4>
             <div className="flex flex-wrap gap-2">
               {skills.map((skill) => (
@@ -91,7 +101,7 @@ const About: React.FC = () => (
           <div className="relative">
             <div className="w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-[#FFD700]">
               <img 
-                src="/Images/miracle.jpeg" 
+                src="./Images/miracle.jpeg" 
                 alt="Professional headshot" 
                 className="w-full h-full object-cover"
               />

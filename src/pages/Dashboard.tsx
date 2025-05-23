@@ -5,7 +5,8 @@ import { navItems } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { onAuthStateChange } from "@/lib/firebaseUtils";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 // Lazy load dashboard components
 const DashboardTabs = lazy(() =>
@@ -22,10 +23,17 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const handleNavClick = (sectionId: string) => {
+    if (sectionId.startsWith('/')) {
+      navigate(sectionId);
+    } else {
+      navigate(`/#${sectionId}`);
+    }
+  };
+
   const handleLogout = async () => {
     try {
-      // This will be replaced with Firebase auth signOut
-      onAuthStateChange(null);
+      await signOut(auth);
       toast({ title: "Logged Out", description: "You have been successfully logged out." });
       navigate("/");
     } catch (error) {
@@ -40,7 +48,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar items={navItems} />
+      <Navbar items={navItems} onNavClick={handleNavClick} />
       
       <main className="container mx-auto px-4 py-20">
         <motion.div 

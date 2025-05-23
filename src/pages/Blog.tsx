@@ -8,6 +8,8 @@ import { format } from 'date-fns';
 import { Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+const ALLOWED_TAGS = ["Cloud Computing", "Backend", "Frontend"];
+
 const Blog = () => {
   const navigate = useNavigate();
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -37,7 +39,9 @@ const Blog = () => {
     fetchPosts();
   }, []);
 
-  const allTags = Array.from(new Set(posts.flatMap(post => post.tags)));
+  const allTags = Array.from(new Set(posts.flatMap(post => 
+    post.tags.filter(tag => ALLOWED_TAGS.includes(tag))
+  )));
   const filteredPosts = selectedTag 
     ? posts.filter(post => post.tags.includes(selectedTag))
     : posts;
@@ -83,6 +87,7 @@ const Blog = () => {
             ))}
           </div>
 
+          {/* Content */}
           {isLoading ? (
             <div className="flex justify-center py-20">
               <div className="animate-spin w-8 h-8 border-4 border-[#FFD700] border-t-transparent rounded-full"></div>
@@ -107,15 +112,17 @@ const Blog = () => {
                   )}
                   <div className="p-6">
                     <div className="flex gap-2 mb-3">
-                      {post.tags.map(tag => (
-                        <span 
-                          key={tag}
-                          className="inline-flex items-center text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full"
-                        >
-                          <Tag className="w-3 h-3 mr-1" />
-                          {tag}
-                        </span>
-                      ))}
+                      {post.tags
+                        .filter(tag => ALLOWED_TAGS.includes(tag))
+                        .map(tag => (
+                          <span 
+                            key={tag}
+                            className="inline-flex items-center text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full"
+                          >
+                            <Tag className="w-3 h-3 mr-1" />
+                            {tag}
+                          </span>
+                        ))}
                     </div>
                     <h2 className="text-2xl font-bold mb-2">
                       <Link to={`/blog/${post.slug}`} className="hover:text-[#FFD700] transition-colors">

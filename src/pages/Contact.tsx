@@ -6,9 +6,25 @@ import LeadCaptureForm from "@/components/LeadCaptureForm";
 import { MapPin, Mail, Phone } from "lucide-react";
 
 const Contact = () => {
+  const handleNavClick = (sectionId: string) => {
+    const targetId = sectionId.replace('#', '');
+    if (targetId === '') {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      return;
+    }
+    
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar items={navItems} />
+      <Navbar items={navItems} onNavClick={handleNavClick} />
       
       <main className="container mx-auto px-4 py-20">
         <motion.div 
@@ -87,4 +103,4 @@ const Contact = () => {
   );
 };
 
-export default Contact; 
+export default Contact;

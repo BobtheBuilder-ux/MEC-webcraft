@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Navbar } from "@/components/Navbar";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -11,7 +11,8 @@ import {
   signInWithEmailAndPassword, 
   PhoneAuthProvider, 
   RecaptchaVerifier,
-  signInWithCredential
+  signInWithCredential,
+  onAuthStateChanged
 } from 'firebase/auth';
 import { auth, provider } from '@/lib/firebase';
 import { navItems } from "@/lib/data";
@@ -20,6 +21,19 @@ import AuthForm from "@/components/ui/auth-form";
 const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Get return url from location state or default to dashboard
+        const returnUrl = location.state?.from?.pathname || '/dashboard';
+        navigate(returnUrl);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [navigate, location]);
   
   // Check if URL has email sign-in link when component mounts
   useEffect(() => {
@@ -28,15 +42,10 @@ const Login = () => {
     }
   }, []);
 
-  // Email and password sign-in
   const handleFormSubmit = async (email: string, password: string) => {
     try {
-      const result = await signInWithEmailAndPassword(auth, email, password);
-      toast({
-        title: "Login Successful",
-        description: `Welcome back, ${result.user.email}!`,
-      });
-      navigate('/dashboard');
+      await signInWithEmailAndPassword(auth, email, password);
+      // Navigation will be handled by the auth state change listener
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -46,15 +55,10 @@ const Login = () => {
     }
   };
 
-  // Google sign-in
   const handleGoogleSignIn = async () => {
     try {
-      const result = await signInWithPopup(auth, provider);
-      toast({
-        title: "Login Successful",
-        description: `Welcome, ${result.user.displayName}!`,
-      });
-      navigate('/dashboard');
+      await signInWithPopup(auth, provider);
+      // Navigation will be handled by the auth state change listener
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -64,7 +68,6 @@ const Login = () => {
     }
   };
 
-  // Email link sign-in
   const handleEmailLinkSignIn = async (email: string) => {
     if (!email) return;
     
@@ -89,7 +92,6 @@ const Login = () => {
     }
   };
 
-  // Complete email link sign-in
   const handleEmailLinkCompleteSignIn = async () => {
     let email = window.localStorage.getItem('emailForSignIn');
     if (!email) {
@@ -99,13 +101,9 @@ const Login = () => {
     if (!email) return;
     
     try {
-      const result = await signInWithEmailLink(auth, email, window.location.href);
+      await signInWithEmailLink(auth, email, window.location.href);
       window.localStorage.removeItem('emailForSignIn');
-      toast({
-        title: "Login Successful",
-        description: `Welcome, ${result.user.email}!`,
-      });
-      navigate('/dashboard');
+      // Navigation will be handled by the auth state change listener
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -115,13 +113,11 @@ const Login = () => {
     }
   };
 
-  // Phone authentication
   const handlePhoneSignIn = async () => {
     const phoneNumber = window.prompt('Enter your phone number (with country code):');
     if (!phoneNumber) return;
     
     try {
-      // Setup reCAPTCHA
       const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
         size: 'invisible',
       });
@@ -129,19 +125,12 @@ const Login = () => {
       const provider = new PhoneAuthProvider(auth);
       const verificationId = await provider.verifyPhoneNumber(phoneNumber, recaptchaVerifier);
       
-      // Store verification ID and show verification code input
       const verificationCode = window.prompt('Enter the verification code sent to your phone:');
       if (!verificationCode) return;
       
-      // Use verification code to sign in
       const credential = PhoneAuthProvider.credential(verificationId, verificationCode);
-      const result = await signInWithCredential(auth, credential);
-      
-      toast({
-        title: "Login Successful",
-        description: `Welcome!`,
-      });
-      navigate('/dashboard');
+      await signInWithCredential(auth, credential);
+      // Navigation will be handled by the auth state change listener
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -153,10 +142,9 @@ const Login = () => {
 
   return (
     <>
-      <Navbar items={navItems} />
+      <Navbar items={navItems} onNavClick={() => {}} />
       <div id="recaptcha-container"></div>
       
-      {/* Pass the authentication handlers to AuthForm */}
       <AuthForm 
         onEmailPasswordSignIn={handleFormSubmit}
         onGoogleSignIn={handleGoogleSignIn}
