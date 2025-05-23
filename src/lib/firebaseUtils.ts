@@ -25,13 +25,14 @@ export interface Project {
   id: string;
   title: string;
   description: string;
-  image: string;
+  images: string[];
   tags: string[];
   category: string;
   githubUrl?: string;
+  liveDemo?: string;
   tools?: string[];
-  phoneScreenshot?: string;
-  desktopScreenshot?: string;
+  phoneScreenshots?: string[];
+  desktopScreenshots?: string[];
   createdAt?: Date;
 }
 
@@ -64,22 +65,22 @@ export const getAllProjects = async () => {
     
     const projects = snapshot.docs.map(doc => {
       const data = doc.data();
-      // Ensure createdAt is properly converted to a Date object if it exists
-      const createdAt = data.createdAt ? data.createdAt.toDate() : new Date();
-      
-      // Ensure tags are properly converted to an array if they exist
-      const tags = Array.isArray(data.tags) ? data.tags : 
-                  (typeof data.tags === 'string' ? data.tags.split(',') : []);
+      // Handle legacy single image/screenshot fields
+      const images = data.images || (data.image ? [data.image] : []);
+      const phoneScreenshots = data.phoneScreenshots || (data.phoneScreenshot ? [data.phoneScreenshot] : []);
+      const desktopScreenshots = data.desktopScreenshots || (data.desktopScreenshot ? [data.desktopScreenshot] : []);
       
       return {
         id: doc.id,
         ...data,
-        createdAt,
-        tags
+        images,
+        phoneScreenshots,
+        desktopScreenshots,
+        createdAt: data.createdAt?.toDate() || new Date(),
+        tags: Array.isArray(data.tags) ? data.tags : (data.tags?.split(',') || [])
       };
     }) as Project[];
     
-    console.log('Processed projects:', projects);
     return projects;
   } catch (error) {
     console.error('Error fetching projects:', error);
@@ -93,10 +94,15 @@ export const getProject = async (id: string) => {
   if (!docSnap.exists()) {
     throw new Error('Project not found');
   }
+  
+  const data = docSnap.data();
   return {
     id: docSnap.id,
-    ...docSnap.data(),
-    createdAt: docSnap.data().createdAt?.toDate()
+    ...data,
+    images: data.images || (data.image ? [data.image] : []),
+    phoneScreenshots: data.phoneScreenshots || (data.phoneScreenshot ? [data.phoneScreenshot] : []),
+    desktopScreenshots: data.desktopScreenshots || (data.desktopScreenshot ? [data.desktopScreenshot] : []),
+    createdAt: data.createdAt?.toDate()
   } as Project;
 };
 

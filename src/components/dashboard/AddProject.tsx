@@ -6,13 +6,13 @@ interface Project {
   id: string;
   title: string;
   description: string;
-  image: string;
+  images: string[];
   tags: string[];
   category: string;
   githubUrl?: string;
   tools?: string[];
-  phoneScreenshot?: string;
-  desktopScreenshot?: string;
+  phoneScreenshots?: string[];
+  desktopScreenshots?: string[];
 }
 
 interface AddProjectProps {

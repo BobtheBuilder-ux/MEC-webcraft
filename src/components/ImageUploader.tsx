@@ -4,48 +4,52 @@ import { useToast } from "@/hooks/use-toast";
 import { optimizeImage } from '@/lib/imageOptimizer';
 
 interface ImageUploaderProps {
-  onImageUploaded: (imageUrl: string) => void;
+  onImagesUploaded: (imageUrls: string[]) => void;
   currentImages?: string[];
   label?: string;
   maxWidth?: number;
   quality?: number;
+  multiple?: boolean;
 }
 
 export function ImageUploader({ 
-  onImageUploaded, 
+  onImagesUploaded, 
   currentImages = [],
   label = "Upload Image",
   maxWidth = 1200,
-  quality = 0.8 
+  quality = 0.8,
+  multiple = false
 }: ImageUploaderProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) {
-      console.error('No file selected');
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) {
+      console.error('No files selected');
       return;
     }
 
-    console.log('Selected file:', file);
-
     try {
       setIsLoading(true);
-      const optimizedImageUrl = await optimizeImage(file, { maxWidth, quality });
-      console.log('Optimized image URL:', optimizedImageUrl);
-      onImageUploaded(optimizedImageUrl);
+      const uploadPromises = files.map(async (file) => {
+        const optimizedImageUrl = await optimizeImage(file, { maxWidth, quality });
+        return optimizedImageUrl;
+      });
+
+      const uploadedUrls = await Promise.all(uploadPromises);
+      onImagesUploaded(uploadedUrls);
 
       toast({
         title: "Success",
-        description: "Image optimized and uploaded successfully",
+        description: `${files.length} image${files.length > 1 ? 's' : ''} uploaded successfully`,
       });
     } catch (error) {
-      console.error('Failed to process image:', error);
+      console.error('Failed to process images:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to process image. Please try again.",
+        description: "Failed to process images. Please try again.",
       });
     } finally {
       setIsLoading(false);
@@ -59,6 +63,7 @@ export function ImageUploader({
         accept="image/*"
         onChange={handleImageChange}
         disabled={isLoading}
+        multiple={multiple}
         aria-label={label}
       />
       {isLoading && (
@@ -67,13 +72,13 @@ export function ImageUploader({
         </div>
       )}
       {currentImages.length > 0 && (
-        <div className="mt-4">
+        <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
           {currentImages.map((image, index) => (
             <img 
               key={index}
               src={image}
-              alt="Uploaded image preview"
-              className="max-h-40 rounded-md"
+              alt={`Uploaded image ${index + 1}`}
+              className="w-full h-40 object-cover rounded-md"
             />
           ))}
         </div>

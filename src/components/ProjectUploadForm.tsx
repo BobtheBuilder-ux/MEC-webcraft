@@ -10,13 +10,14 @@ interface Project {
   id: string;
   title: string;
   description: string;
-  image: string;
+  images: string[];
   tags: string[];
   category: string;
   githubUrl?: string;
+  liveDemo?: string;
   tools?: string[];
-  phoneScreenshot?: string;
-  desktopScreenshot?: string;
+  phoneScreenshots?: string[];
+  desktopScreenshots?: string[];
 }
 
 interface ProjectUploadFormProps {
@@ -28,13 +29,14 @@ export function ProjectUploadForm({ onAddProject }: ProjectUploadFormProps) {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    image: '',
+    images: [] as string[],
     tags: '',
     category: '',
     githubUrl: '',
+    liveDemo: '',
     tools: '',
-    phoneScreenshot: '',
-    desktopScreenshot: ''
+    phoneScreenshots: [] as string[],
+    desktopScreenshots: [] as string[]
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -45,8 +47,11 @@ export function ProjectUploadForm({ onAddProject }: ProjectUploadFormProps) {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleImageUpload = (imageUrl: string, field: keyof typeof formData) => {
-    setFormData(prev => ({ ...prev, [field]: imageUrl }));
+  const handleImagesUpload = (imageUrls: string[], field: 'images' | 'phoneScreenshots' | 'desktopScreenshots') => {
+    setFormData(prev => ({ 
+      ...prev, 
+      [field]: [...prev[field], ...imageUrls]
+    }));
   };
 
   const validateForm = () => {
@@ -68,11 +73,11 @@ export function ProjectUploadForm({ onAddProject }: ProjectUploadFormProps) {
       return false;
     }
 
-    if (!formData.image) {
+    if (formData.images.length === 0) {
       toast({
         variant: "destructive",
-        title: "Main Image Required",
-        description: "Please upload a main project image.",
+        title: "Images Required",
+        description: "Please upload at least one project image.",
       });
       return false;
     }
@@ -109,14 +114,15 @@ export function ProjectUploadForm({ onAddProject }: ProjectUploadFormProps) {
       const projectData: Omit<Project, 'id'> = {
         title: formData.title.trim(),
         description: formData.description.trim(),
-        image: formData.image,
+        images: formData.images,
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
         category: formData.category.trim(),
         // Only include optional fields if they have actual values
         ...(formData.githubUrl.trim() && { githubUrl: formData.githubUrl.trim() }),
+        ...(formData.liveDemo.trim() && { liveDemo: formData.liveDemo.trim() }),
         tools: formData.tools ? formData.tools.split(',').map(tool => tool.trim()).filter(Boolean) : [],
-        ...(formData.phoneScreenshot && { phoneScreenshot: formData.phoneScreenshot }),
-        ...(formData.desktopScreenshot && { desktopScreenshot: formData.desktopScreenshot })
+        ...(formData.phoneScreenshots.length > 0 && { phoneScreenshots: formData.phoneScreenshots }),
+        ...(formData.desktopScreenshots.length > 0 && { desktopScreenshots: formData.desktopScreenshots })
       };
 
       console.log('Submitting project with data:', projectData);
@@ -126,13 +132,14 @@ export function ProjectUploadForm({ onAddProject }: ProjectUploadFormProps) {
       setFormData({
         title: '',
         description: '',
-        image: '',
+        images: [],
         tags: '',
         category: '',
         githubUrl: '',
+        liveDemo: '',
         tools: '',
-        phoneScreenshot: '',
-        desktopScreenshot: ''
+        phoneScreenshots: [],
+        desktopScreenshots: []
       });
 
       toast({
@@ -179,24 +186,26 @@ export function ProjectUploadForm({ onAddProject }: ProjectUploadFormProps) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Main Image *</label>
+        <label className="block text-sm font-medium mb-1">Project Images *</label>
         <ImageUploader
-          currentImages={formData.image ? [formData.image] : []}
-          onImageUploaded={(url) => handleImageUpload(url, 'image')}
+          currentImages={formData.images}
+          onImagesUploaded={(urls) => handleImagesUpload(urls, 'images')}
+          multiple={true}
+          label="Upload project images"
         />
       </div>
 
       <div>
         <label htmlFor="category" className="block text-sm font-medium mb-1">Category *</label>
-                  <Input 
+        <Input 
           id="category"
           name="category"
           value={formData.category}
           onChange={handleInputChange}
           required
           placeholder="e.g., React, WordPress, Python"
-          />
-        </div>
+        />
+      </div>
         
       <div>
         <label htmlFor="tags" className="block text-sm font-medium mb-1">Tags *</label>
@@ -233,21 +242,37 @@ export function ProjectUploadForm({ onAddProject }: ProjectUploadFormProps) {
         />
       </div>
 
-          <div>
-        <label className="block text-sm font-medium mb-1">Phone Screenshot</label>
-            <ImageUploader
-          currentImages={formData.phoneScreenshot ? [formData.phoneScreenshot] : []}
-          onImageUploaded={(url) => handleImageUpload(url, 'phoneScreenshot')}
-            />
-          </div>
+      <div>
+        <label htmlFor="liveDemo" className="block text-sm font-medium mb-1">Live Demo URL</label>
+        <Input
+          id="liveDemo"
+          name="liveDemo"
+          type="url"
+          value={formData.liveDemo}
+          onChange={handleInputChange}
+          placeholder="https://your-project-demo.com"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Mobile Screenshots</label>
+        <ImageUploader
+          currentImages={formData.phoneScreenshots}
+          onImagesUploaded={(urls) => handleImagesUpload(urls, 'phoneScreenshots')}
+          multiple={true}
+          label="Upload mobile screenshots"
+        />
+      </div>
           
       <div>
-        <label className="block text-sm font-medium mb-1">Desktop Screenshot</label>
+        <label className="block text-sm font-medium mb-1">Desktop Screenshots</label>
         <ImageUploader
-          currentImages={formData.desktopScreenshot ? [formData.desktopScreenshot] : []}
-          onImageUploaded={(url) => handleImageUpload(url, 'desktopScreenshot')}
-          />
-        </div>
+          currentImages={formData.desktopScreenshots}
+          onImagesUploaded={(urls) => handleImagesUpload(urls, 'desktopScreenshots')}
+          multiple={true}
+          label="Upload desktop screenshots"
+        />
+      </div>
         
       <Button 
         type="submit" 
@@ -255,7 +280,7 @@ export function ProjectUploadForm({ onAddProject }: ProjectUploadFormProps) {
         disabled={isSubmitting}
       >
         {isSubmitting ? "Adding Project..." : "Add Project"}
-        </Button>
-      </form>
+      </Button>
+    </form>
   );
 }

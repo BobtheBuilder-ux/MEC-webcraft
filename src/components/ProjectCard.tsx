@@ -17,10 +17,13 @@ interface Project {
   id: string;
   title: string;
   description: string;
-  image: string;
+  images: string[];
   tags: string[];
   category: string;
   githubUrl?: string;
+  tools?: string[];
+  phoneScreenshots?: string[];
+  desktopScreenshots?: string[];
 }
 
 interface ProjectCardProps {
@@ -32,7 +35,7 @@ interface ProjectCardProps {
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onDelete, isAdmin = false }) => {
   // If in admin mode, don't make the card clickable
   const CardWrapper = isAdmin ? React.Fragment : (props: any) => (
-    <Link to={`/project/${project.id}`} className="block h-full" {...props} />
+    <Link to={`/projects/${project.id}`} className="block h-full" {...props} />
   );
 
   return (
@@ -46,10 +49,15 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onDelete, isA
         <Card className="overflow-hidden group h-full hover:shadow-lg transition-shadow duration-300">
           <div className="relative">
             <img
-              src={project.image}
+              src={project.images[0]} // Use the first image as the main preview
               alt={project.title}
               className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
             />
+            {project.images.length > 1 && (
+              <div className="absolute bottom-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
+                +{project.images.length - 1} more
+              </div>
+            )}
             {isAdmin && (
               <div className="absolute top-2 right-2 flex gap-2">
                 <Link to={`/edit-project/${project.id}`} onClick={(e) => e.stopPropagation()}>

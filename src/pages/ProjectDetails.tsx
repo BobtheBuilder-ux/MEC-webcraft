@@ -12,13 +12,14 @@ interface Project {
   id: string;
   title: string;
   description: string;
-  image: string;
+  images: string[];
   tags: string[];
   category: string;
   githubUrl?: string;
+  liveDemo?: string;
   tools?: string[];
-  phoneScreenshot?: string;
-  desktopScreenshot?: string;
+  phoneScreenshots?: string[];
+  desktopScreenshots?: string[];
   createdAt?: Date;
 }
 
@@ -29,6 +30,7 @@ const ProjectDetails = () => {
   const [relatedProjects, setRelatedProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   useEffect(() => {
     if (!id) {
@@ -65,7 +67,7 @@ const ProjectDetails = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar items={navItems} />
+        <Navbar items={navItems} onNavClick={() => {}} />
         <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
           <div className="animate-spin w-8 h-8 border-4 border-[#FFD700] border-t-transparent rounded-full"></div>
         </div>
@@ -76,7 +78,9 @@ const ProjectDetails = () => {
   if (error || !project) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Navbar items={navItems} />
+        <Navbar items={navItems} onNavClick={function (sectionId: string): void {
+          throw new Error("Function not implemented.");
+        } } />
         <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
           <div className="text-center">
             <h2 className="text-2xl font-bold mb-4">Project Not Found</h2>
@@ -96,14 +100,14 @@ const ProjectDetails = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar items={navItems} />
+      <Navbar items={navItems} onNavClick={() => {}} />
       
       <main className="pt-20 pb-16">
         {/* Hero Section */}
         <section className="relative h-[60vh]">
           <div className="absolute inset-0">
             <img 
-              src={project.image} 
+              src={project.images[activeImageIndex]} 
               alt={project.title} 
               className="w-full h-full object-cover"
             />
@@ -166,11 +170,29 @@ const ProjectDetails = () => {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="prose prose-lg max-w-none"
             >
+              {project.images.length > 1 && (
+                <div className="grid grid-cols-4 gap-4 mb-8">
+                  {project.images.map((image, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setActiveImageIndex(index)}
+                      className={`relative rounded-lg overflow-hidden ${index === activeImageIndex ? 'ring-2 ring-[#FFD700]' : ''}`}
+                    >
+                      <img 
+                        src={image} 
+                        alt={`${project.title} view ${index + 1}`}
+                        className="w-full h-24 object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+
               <h2 className="text-2xl font-display font-bold mb-6">Project Overview</h2>
               <p className="text-gray-700 mb-8 whitespace-pre-line">
                 {project.description}
               </p>
-
+              
               <div className="flex flex-col md:flex-row gap-8 mb-12">
                 <div className="md:w-1/2">
                   <h3 className="text-xl font-bold mb-4">Technologies Used</h3>
@@ -205,9 +227,17 @@ const ProjectDetails = () => {
                 <div className="md:w-1/2">
                   <h3 className="text-xl font-bold mb-4">Project Links</h3>
                   <div className="flex gap-4">
-                    <Button className="bg-[#FFD700] hover:bg-[#e6c300] text-black">
-                      <ExternalLink className="mr-2 h-4 w-4" /> Live Demo
-                    </Button>
+                    {project.liveDemo ? (
+                      <a href={project.liveDemo} target="_blank" rel="noopener noreferrer">
+                        <Button className="bg-[#FFD700] hover:bg-[#e6c300] text-black">
+                          <ExternalLink className="mr-2 h-4 w-4" /> Live Demo
+                        </Button>
+                      </a>
+                    ) : (
+                      <Button className="bg-[#FFD700] hover:bg-[#e6c300] text-black" disabled>
+                        <ExternalLink className="mr-2 h-4 w-4" /> Live Demo
+                      </Button>
+                    )}
                     {project.githubUrl ? (
                       <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
                         <Button variant="outline">
@@ -223,35 +253,38 @@ const ProjectDetails = () => {
                 </div>
               </div>
               
+              {/* Project Screenshots */}
               <h2 className="text-2xl font-display font-bold mb-6">Project Screenshots</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-                {project.phoneScreenshot ? (
+                {project.phoneScreenshots && project.phoneScreenshots.length > 0 && (
                   <div>
-                    <h4 className="text-lg font-medium mb-2">Mobile View</h4>
-                    <img 
-                      src={project.phoneScreenshot} 
-                      alt={`${project.title} - Mobile View`}
-                      className="rounded-lg shadow-lg w-full h-auto object-cover"
-                    />
-                  </div>
-                ) : (
-                  <div className="rounded-lg bg-gray-100 h-64 flex items-center justify-center">
-                    <p className="text-gray-500">No mobile screenshot available</p>
+                    <h4 className="text-lg font-medium mb-2">Mobile Views</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      {project.phoneScreenshots.map((screenshot, index) => (
+                        <img 
+                          key={index}
+                          src={screenshot} 
+                          alt={`${project.title} - Mobile View ${index + 1}`}
+                          className="rounded-lg shadow-lg w-full h-auto object-cover"
+                        />
+                      ))}
+                    </div>
                   </div>
                 )}
                 
-                {project.desktopScreenshot ? (
+                {project.desktopScreenshots && project.desktopScreenshots.length > 0 && (
                   <div>
-                    <h4 className="text-lg font-medium mb-2">Desktop View</h4>
-                    <img 
-                      src={project.desktopScreenshot} 
-                      alt={`${project.title} - Desktop View`}
-                      className="rounded-lg shadow-lg w-full h-auto object-cover"
-                    />
-                  </div>
-                ) : (
-                  <div className="rounded-lg bg-gray-100 h-64 flex items-center justify-center">
-                    <p className="text-gray-500">No desktop screenshot available</p>
+                    <h4 className="text-lg font-medium mb-2">Desktop Views</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      {project.desktopScreenshots.map((screenshot, index) => (
+                        <img 
+                          key={index}
+                          src={screenshot} 
+                          alt={`${project.title} - Desktop View ${index + 1}`}
+                          className="rounded-lg shadow-lg w-full h-auto object-cover"
+                        />
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -263,18 +296,19 @@ const ProjectDetails = () => {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {relatedProjects.map((relatedProject) => (
                       <Link 
-                        to={`/project/${relatedProject.id}`} 
+                        to={`/projects/${relatedProject.id}`} 
                         key={relatedProject.id}
                         className="group"
                       >
                         <div className="rounded-lg overflow-hidden shadow-md transition-all duration-300 hover:shadow-xl bg-white">
                           <div className="h-48 overflow-hidden">
                             <img 
-                              src={relatedProject.image} 
+                              src={relatedProject.images[0]} 
                               alt={relatedProject.title} 
                               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
                           </div>
+                          
                           <div className="p-4">
                             <h3 className="font-bold text-lg mb-2 text-gray-800 group-hover:text-[#FFD700] transition-colors">
                               {relatedProject.title}
