@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, ExternalLink, Github, Clock } from "lucide-react";
+import { ArrowLeft, ExternalLink, Github, Clock, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/Navbar";
 import { navItems } from "@/lib/data";
-import { getProject, getAllProjects } from "@/lib/firebaseUtils";
+import { getProject, getAllProjects, onAuthStateChange } from "@/lib/firebaseUtils";
+import { ImageLightbox } from "@/components/ImageLightbox";
 
 // Update Project type for Firebase
 interface Project {
@@ -31,6 +32,17 @@ const ProjectDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [activeLightboxImages, setActiveLightboxImages] = useState<string[]>([]);
+  const [lightboxInitialIndex, setLightboxInitialIndex] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChange((user) => {
+      setIsAdmin(!!user);
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (!id) {
@@ -63,6 +75,12 @@ const ProjectDetails = () => {
 
     fetchProject();
   }, [id, navigate]);
+
+  const openLightbox = (images: string[], initialIndex: number) => {
+    setActiveLightboxImages(images);
+    setLightboxInitialIndex(initialIndex);
+    setLightboxOpen(true);
+  };
 
   if (isLoading) {
     return (
@@ -109,7 +127,8 @@ const ProjectDetails = () => {
             <img 
               src={project.images[activeImageIndex]} 
               alt={project.title} 
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover cursor-pointer"
+              onClick={() => openLightbox(project.images, activeImageIndex)}
             />
             <div className="absolute inset-0 bg-black/50" />
           </div>
@@ -120,13 +139,25 @@ const ProjectDetails = () => {
             transition={{ duration: 0.5 }}
             className="relative h-full container mx-auto px-4 flex flex-col justify-end pb-10"
           >
-            <Button 
-              variant="outline" 
-              className="mb-6 w-fit bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white"
-              onClick={() => navigate(-1)}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back
-            </Button>
+            <div className="flex justify-between items-start mb-6">
+              <Button 
+                variant="outline" 
+                className="w-fit bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white"
+                onClick={() => navigate(-1)}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" /> Back
+              </Button>
+
+              {isAdmin && (
+                <Button
+                  variant="outline"
+                  className="w-fit bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white"
+                  onClick={() => navigate(`/edit-project/${project.id}`)}
+                >
+                  <Pencil className="mr-2 h-4 w-4" /> Edit Project
+                </Button>
+              )}
+            </div>
             
             <h1 className="text-3xl md:text-5xl font-display font-bold text-white mb-4">
               {project.title}
@@ -175,8 +206,13 @@ const ProjectDetails = () => {
                   {project.images.map((image, index) => (
                     <button
                       key={index}
-                      onClick={() => setActiveImageIndex(index)}
-                      className={`relative rounded-lg overflow-hidden ${index === activeImageIndex ? 'ring-2 ring-[#FFD700]' : ''}`}
+                      onClick={() => {
+                        setActiveImageIndex(index);
+                        openLightbox(project.images, index);
+                      }}
+                      className={`relative rounded-lg overflow-hidden cursor-pointer ${
+                        index === activeImageIndex ? 'ring-2 ring-[#FFD700]' : ''
+                      }`}
                     >
                       <img 
                         src={image} 
@@ -265,7 +301,8 @@ const ProjectDetails = () => {
                           key={index}
                           src={screenshot} 
                           alt={`${project.title} - Mobile View ${index + 1}`}
-                          className="rounded-lg shadow-lg w-full h-auto object-cover"
+                          className="rounded-lg shadow-lg w-full h-auto object-cover cursor-pointer"
+                          onClick={() => openLightbox(project.phoneScreenshots!, index)}
                         />
                       ))}
                     </div>
@@ -281,7 +318,8 @@ const ProjectDetails = () => {
                           key={index}
                           src={screenshot} 
                           alt={`${project.title} - Desktop View ${index + 1}`}
-                          className="rounded-lg shadow-lg w-full h-auto object-cover"
+                          className="rounded-lg shadow-lg w-full h-auto object-cover cursor-pointer"
+                          onClick={() => openLightbox(project.desktopScreenshots!, index)}
                         />
                       ))}
                     </div>
@@ -339,6 +377,13 @@ const ProjectDetails = () => {
           </div>
         </section>
       </main>
+
+      <ImageLightbox
+        images={activeLightboxImages}
+        initialIndex={lightboxInitialIndex}
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+      />
     </div>
   );
 };

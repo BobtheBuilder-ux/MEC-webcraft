@@ -140,6 +140,28 @@ export const addProject = async (projectData: Omit<Project, 'id' | 'createdAt'>)
   }
 };
 
+export const updateProject = async (id: string, data: Partial<Project>) => {
+  try {
+    // Clean the object by removing undefined values
+    const cleanedData = Object.entries(data).reduce((acc, [key, value]) => {
+      if (value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as Record<string, any>);
+    
+    const projectRef = doc(db, 'projects', id);
+    await updateDoc(projectRef, {
+      ...cleanedData,
+      updatedAt: Timestamp.now()
+    });
+    return id;
+  } catch (error) {
+    console.error('Error updating project in Firestore:', error);
+    throw error;
+  }
+};
+
 export const deleteProject = async (id: string) => {
   await deleteDoc(doc(db, 'projects', id));
 };

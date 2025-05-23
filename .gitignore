@@ -1,5 +1,4 @@
 # dependencies
-node_modules
 dist
 public_html
 
@@ -36,3 +35,4 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+node_modules

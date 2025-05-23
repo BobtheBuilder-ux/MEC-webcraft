@@ -8,7 +8,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Trash2 } from 'lucide-react';
+import { Trash2, Pencil } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface Project {
   id: string;
@@ -30,6 +31,8 @@ interface ProjectsListProps {
 }
 
 export function ProjectsList({ projects, isLoading, onDeleteProject }: ProjectsListProps) {
+  const navigate = useNavigate();
+  
   const handleDelete = (id: string) => {
     if (window.confirm('Are you sure you want to delete this project?')) {
       onDeleteProject(id);
@@ -71,14 +74,24 @@ export function ProjectsList({ projects, isLoading, onDeleteProject }: ProjectsL
                 <TableCell>{project.category}</TableCell>
                 <TableCell>{project.tags.join(', ')}</TableCell>
                 <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDelete(project.id)}
-                    className="hover:bg-destructive/10 hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => navigate(`/edit-project/${project.id}`)}
+                      className="hover:bg-primary/10 hover:text-primary"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDelete(project.id)}
+                      className="hover:bg-destructive/10 hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))
