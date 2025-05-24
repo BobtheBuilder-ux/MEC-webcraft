@@ -17,13 +17,11 @@ interface Project {
   id: string;
   title: string;
   description: string;
-  images: string[];
+  images: string[];  // Changed from image to images array
   tags: string[];
   category: string;
   githubUrl?: string;
   tools?: string[];
-  phoneScreenshots?: string[];
-  desktopScreenshots?: string[];
 }
 
 interface ProjectCardProps {
@@ -35,7 +33,7 @@ interface ProjectCardProps {
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onDelete, isAdmin = false }) => {
   // If in admin mode, don't make the card clickable
   const CardWrapper = isAdmin ? React.Fragment : (props: any) => (
-    <Link to={`/projects/${project.id}`} className="block h-full" {...props} />
+    <Link to={`/project/${project.id}`} className="block h-full" {...props} />
   );
 
   return (
@@ -49,7 +47,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onDelete, isA
         <Card className="overflow-hidden group h-full hover:shadow-lg transition-shadow duration-300">
           <div className="relative">
             <img
-              src={project.images[0]} // Use the first image as the main preview
+              src={project.images[0]} // Use first image from array
               alt={project.title}
               className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
             />

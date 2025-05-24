@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { getAllProjects } from "@/lib/firebaseUtils";
 import { onAuthStateChange } from "@/lib/firebaseUtils";
+import { Helmet } from 'react-helmet';
 
 const { CheckCircle2, Github, Linkedin, Twitter, Instagram, Mail } = LucideIcons;
 
@@ -227,63 +228,76 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen">
-      <Navbar items={navItems} onNavClick={scrollToSection} />
+    <>
+      <Helmet>
+        <title>Full Stack Web Development & Cloud Solutions | MEC-webcraft</title>
+        <meta name="description" content="Expert full-stack development services specializing in React, Python backends, and cloud computing solutions. Transform your business with modern web technology." />
+        <meta name="keywords" content="full stack development, web development, cloud computing, Python backend, React development, TypeScript, cloud solutions" />
+        <meta name="robots" content="index, follow" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Full Stack Web Development & Cloud Solutions | MEC-webcraft" />
+        <meta property="og:description" content="Expert full-stack development services specializing in React, Python backends, and cloud computing solutions." />
+        <link rel="canonical" href="https://mecwebcraft.com" />
+      </Helmet>
       
-      <main>
-        <LandingHero />
-        <About />
+      <div className="min-h-screen">
+        <Navbar items={navItems} onNavClick={scrollToSection} />
         
-        {isLoading && <p className="text-center py-10">Loading projects...</p>}
-        {error && <p className="text-center py-10 text-red-600">Error loading projects: {error}</p>}
-        {!isLoading && !error && <Projects projects={projects} />}
-        
-        <Contact />
-      </main>
-
-      <footer className="bg-gray-50 py-10">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-gray-600">© {new Date().getFullYear()} Portfolio Website. All rights reserved.</p>
+        <main>
+          <LandingHero />
+          <About />
           
-          <div className="flex justify-center mt-6 space-x-4 sm:space-x-6">
-            {navItems.map((item, index) => (
-              <button
-                key={index}
-                onClick={() => scrollToSection(item.url.replace('/', ''))}
-                className="text-sm sm:text-base text-gray-500 hover:text-[#FFD700] transition-colors"
-              >
-                {item.name}
-              </button>
-            ))}
-          </div>
+          {isLoading && <p className="text-center py-10">Loading projects...</p>}
+          {error && <p className="text-center py-10 text-red-600">Error loading projects: {error}</p>}
+          {!isLoading && !error && <Projects projects={projects} />}
+          
+          <Contact />
+        </main>
 
-          {authUser && (
-            <div className="flex justify-center mt-4 space-x-4 sm:space-x-6 items-center">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={handleLogout}
-                className="text-sm sm:text-base text-gray-500 hover:text-[#FFD700]"
-              >
-                Logout
-              </Button>
+        <footer className="bg-gray-50 py-10">
+          <div className="container mx-auto px-4 text-center">
+            <p className="text-gray-600">© {new Date().getFullYear()} Portfolio Website. All rights reserved.</p>
+            
+            <div className="flex justify-center mt-6 space-x-4 sm:space-x-6">
+              {navItems.map((item, index) => (
+                <button
+                  key={index}
+                  onClick={() => scrollToSection(item.url.replace('/', ''))}
+                  className="text-sm sm:text-base text-gray-500 hover:text-[#FFD700] transition-colors"
+                >
+                  {item.name}
+                </button>
+              ))}
             </div>
-          )}
 
-          <div className="flex justify-center mt-6 space-x-4 sm:space-x-6">
-            <a href="#" className="text-gray-500 hover:text-[#FFD700] transition-colors">
-              <Github className="w-6 h-6" />
-            </a>
-            <a href="#" className="text-gray-500 hover:text-[#FFD700] transition-colors">
-              <Linkedin className="w-6 h-6" />
-            </a>
-            <a href="#" className="text-gray-500 hover:text-[#FFD700] transition-colors">
-              <Twitter className="w-6 h-6" />
-            </a>
+            {authUser && (
+              <div className="flex justify-center mt-4 space-x-4 sm:space-x-6 items-center">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleLogout}
+                  className="text-sm sm:text-base text-gray-500 hover:text-[#FFD700]"
+                >
+                  Logout
+                </Button>
+              </div>
+            )}
+
+            <div className="flex justify-center mt-6 space-x-4 sm:space-x-6">
+              <a href="#" className="text-gray-500 hover:text-[#FFD700] transition-colors">
+                <Github className="w-6 h-6" />
+              </a>
+              <a href="#" className="text-gray-500 hover:text-[#FFD700] transition-colors">
+                <Linkedin className="w-6 h-6" />
+              </a>
+              <a href="#" className="text-gray-500 hover:text-[#FFD700] transition-colors">
+                <Twitter className="w-6 h-6" />
+              </a>
+            </div>
           </div>
-        </div>
-      </footer>
-    </div>
+        </footer>
+      </div>
+    </>
   );
 };
 

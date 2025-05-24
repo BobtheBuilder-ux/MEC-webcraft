@@ -54,7 +54,7 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
-## How can I deploy this project?
+## How can you deploy this project?
 
 The project can be deployed to any hosting platform that supports static sites. Common options include:
 - Vercel
