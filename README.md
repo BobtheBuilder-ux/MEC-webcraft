@@ -1,23 +1,16 @@
-# Welcome to your Lovable project
+# Welcome to MEC-webcraft
 
 ## Project info
 
 **Name**: MEC-webcraft
-**URL**: https://lovable.dev/projects/cbd8cc5a-bf6c-4392-961a-101a640348d0
 
 ## How can I edit this code?
 
 There are several ways of editing your application.
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/cbd8cc5a-bf6c-4392-961a-101a640348d0) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
 **Use your preferred IDE**
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+To work locally using your own IDE, you can clone this repo and push changes.
 
 The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
@@ -61,17 +54,23 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
-## How can I deploy this project?
+## How can you deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/cbd8cc5a-bf6c-4392-961a-101a640348d0) and click on Share -> Publish.
+The project can be deployed to any hosting platform that supports static sites. Common options include:
+- Vercel
+- Netlify
+- GitHub Pages
+- AWS S3
+- Firebase Hosting
 
-## Can I connect a custom domain to my Lovable project?
+## Custom Domain Setup
 
-Yes it is!
+To set up a custom domain:
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+1. Purchase a domain from a domain registrar
+2. Configure DNS settings according to your hosting provider's instructions
+3. Add SSL certificate for HTTPS (many hosting providers handle this automatically)
+4. Update environment variables with new domain
 
 ## Secret Management
 
