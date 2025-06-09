@@ -30,12 +30,18 @@ interface ProjectCardProps {
   isAdmin?: boolean;
 }
 
-export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onDelete, isAdmin = false }) => {
-  // If in admin mode, don't make the card clickable
-  const CardWrapper = isAdmin ? React.Fragment : (props: any) => (
-    <Link to={`/project/${project.id}`} className="block h-full" {...props} />
+const CardWrapper = ({ children, project }: { children: React.ReactNode; project: Project }) => {
+  if (!project.id) {
+    return <>{children}</>;
+  }
+  return (
+    <Link to={`/project/${project.id}`} className="block">
+      {children}
+    </Link>
   );
+};
 
+export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onDelete, isAdmin = false }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -43,7 +49,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onDelete, isA
       viewport={{ once: true }}
       transition={{ duration: 0.4 }}
     >
-      <CardWrapper>
+      <CardWrapper project={project}>
         <Card className="overflow-hidden group h-full hover:shadow-lg transition-shadow duration-300">
           <div className="relative">
             <img

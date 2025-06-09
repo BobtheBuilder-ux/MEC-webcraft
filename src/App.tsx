@@ -9,11 +9,9 @@ import { Toaster } from "@/components/ui/toaster";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import ProjectDetails from "./pages/ProjectDetails";
-import { EditProject } from "./pages/EditProject";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import NotFound from "./pages/NotFound";
@@ -38,9 +36,8 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
               <Route
-                path="/dashboard/*"
+                path="/dashboard"
                 element={
                   <ProtectedRoute>
                     <Dashboard />
@@ -48,15 +45,7 @@ const App = () => (
                 }
               />
               <Route path="/projects" element={<Projects />} />
-              <Route path="/projects/:id" element={<ProjectDetails />} />
-              <Route
-                path="/edit-project/:id"
-                element={
-                  <ProtectedRoute>
-                    <EditProject />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/project/:id" element={<ProjectDetails />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
               <Route path="*" element={<NotFound />} />
