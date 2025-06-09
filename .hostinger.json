@@ -1,0 +1,6 @@
+{
+  "type": "static",
+  "buildCommand": "npm run build",
+  "dist": "dist",
+  "framework": "vite"
+}
