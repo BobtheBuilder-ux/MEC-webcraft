@@ -1,0 +1,2 @@
+This is a test file created on 9 June 2025 to verify Hostinger deployment process.
+If you can see this file, it means the git deployment is working correctly!
