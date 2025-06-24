@@ -16,7 +16,6 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import NotFound from "./pages/NotFound";
 import Preloader from "./components/Preloader";
-import { Analytics } from "@vercel/analytics/next"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,7 +32,6 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
             <Preloader />
-            <Analytics />  {/* Added Analytics component here */}
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
